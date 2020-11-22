@@ -1,0 +1,2 @@
+# lab2_git_20453460_CabezasSanmartin
+Laboratorio2 prolog
