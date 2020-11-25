@@ -1,3 +1,11 @@
+/*
+EJEMPLO
+ stack3(A),login(A,"user1","pass1",Stack3),ask(Stack3,20-20-2020,"Mi
+ pregunta",[et1,et2,et3],Stack4),login(Stack4,"user1","pass1",Stack5),answer(Stack5,20-20-2020,1,"respuesta1",[et1,et2,et3],Stack6).
+*/
+
+
+
 %DOM
 %Nombre,Pass,ID,Autor,Fecha,Respuesta;pregunta
 %
@@ -15,15 +23,17 @@
 
 
 % TDA Pregunta
-% [ID ,Autor,Fecha,Pregunta,[Etiquetas][IDs respuesta]]
+% [ID,estado,[IDs respuestas],Autor,Fecha,Pregunta,[Etiquetas]
+%  0 = cerrada    1 = abierta
 % Constructor
-pregunta(ID,[Nombre|_],Fecha,Pregunta,Etiquetas,[ID,Nombre,Fecha,Pregunta,Etiquetas,[]]).
+pregunta(ID,[Nombre|_],Fecha,Pregunta,Etiquetas,[ID,1,[[]],Nombre,Fecha,Pregunta,Etiquetas]).
 
 % TDA Respuesta
-% (IDRespuesta ,IDPregunta,Fecha,Respuesta,[Etiquetas])
+% (IDRespuesta,estado,IDPregunta,Fecha,Respuesta,[Etiquetas])
+% 0 = no aceptada   1 = aceptada
 % Constructor
 respuesta(IDRespuesta,[Username|_],IDPregunta,Fecha,Respuesta,Etiquetas,
-          [IDRespuesta,Username,IDPregunta,Fecha,Respuesta,Etiquetas]).
+          [IDRespuesta,0,Username,IDPregunta,Fecha,Respuesta,Etiquetas]).
 %modificador
 agregarPregunta([],Pregunta,[Pregunta]).
 agregarPregunta([Cabeza|Cola],Pregunta,[Pregunta,Cabeza|Cola]).
@@ -91,11 +101,30 @@ answer([Usuarios,Preguntas,Respuestas,UsuarioActivo], Fecha, IDPregunta, TextoRe
 ListaEtiquetas,[Usuarios,Preguntas,RespuestasNuevas,[]]):-
     contador(Respuestas,IDRespuesta),verificarID(Preguntas,IDPregunta),
 respuesta(IDRespuesta,UsuarioActivo,IDPregunta,Fecha,TextoRespuesta,ListaEtiquetas,
-         Respuesta).agregarRespuesta(Respuesta,Respuestas,RespuestasNuevas).
+         Respuesta),agregarRespuesta(Respuesta,Respuestas,RespuestasNuevas).
 
 verificarID([],_):-!,fail.
 verificarID([[ID|_]|_],ID).
 verificarID([_|Cola],ID):-verificarID(Cola,ID).
+
+agregarRespuesta(X,[],[X]).
+agregarRespuesta(X,[H|C],[X,H|C]).
+
+%  FUNCION PRINCIPAL ACCEPT
+accept([Usuarios,Preguntas,Respuestas,[]],_,_,[Usuarios,Preguntas,Respuestas,[]]):-!,fail.
+accept([Usuarios,Preguntas,Respuestas,UsuarioActivo],IDPregunta,IDRespuesta,
+       [Usuarios,PreguntasVerificadas,Respuestas,[]]):-
+    verificarIDR(Respuestas,IDRespuesta),
+    agregarIdRespuesta(Preguntas,IDPregunta,IDRespuesta,UsuarioActivo,PreguntasVerificadas).
+
+    agregarIdRespuesta([],_,_,[]):-!,fail.
+    agregarIdRespuesta([[IDPregunta,E,[H|C],Usuario|T]|Cola],IDPregunta,IDRespuesta,[Usuario|_],[[IDPregunta,E,[IDRespuesta,H|C]|T]|Cola]).
+    agregarIdRespuesta([Primero|Cola],IDPregunta,IDRespuesta,[Usuario|Pass],[Primero|Cn]):-
+    agregarIdRespuesta(Cola,IDPregunta,IDRespuesta,[Usuario,Pass],Cn).
+
+    verificarIDR([],_):-!,fail.
+    verificarIDR([[ID|_]|_],ID).
+    verificarIDR([_|Cola],ID):-verificarIDR(Cola,ID).
 
 
 %
