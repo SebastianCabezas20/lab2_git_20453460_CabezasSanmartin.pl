@@ -11,23 +11,23 @@
 %([usuarios], [preguntas], [respuestas],usuarioActivo)
 
 % TDA usuario
-%(username,pass,reputacion)
-%Constructor
-usuario(Nombre,Pass,[[Nombre,Pass,0]]).
+%[username,pass]
+
 
 % TDA Pregunta
-% (ID ,Autor,Fecha,Pregunta,[Etiquetas][IDs respuesta])
+% [ID ,Autor,Fecha,Pregunta,[Etiquetas][IDs respuesta]]
 % Constructor
 pregunta(ID,[Nombre|_],Fecha,Pregunta,Etiquetas,[ID,Nombre,Fecha,Pregunta,Etiquetas,[]]).
 
 % TDA Respuesta
 % (IDRespuesta ,IDPregunta,Fecha,Respuesta,[Etiquetas])
 % Constructor
-respuesta(IDRespuesta,IDPregunta,Fecha,Respuesta,Etiquetas,
-          [IDRespuesta,IDPregunta,Fecha,Respuesta,Etiquetas]).
+respuesta(IDRespuesta,[Username|_],IDPregunta,Fecha,Respuesta,Etiquetas,
+          [IDRespuesta,Username,IDPregunta,Fecha,Respuesta,Etiquetas]).
 %modificador
 agregarPregunta([],Pregunta,[Pregunta]).
 agregarPregunta([Cabeza|Cola],Pregunta,[Pregunta,Cabeza|Cola]).
+
 
 % TDA usuarioActivo
 % agregar
@@ -48,35 +48,34 @@ stack2([[[user1,pass1,0],[user2,pass2,0],[user3,pass2,0]],
  [[1,nombreGenerico, 20-20-20, "pregunta1?", [et1, et2, et3]]],
  [[1, 1, 20-20-20, "respuesta1", [et1, et2, et3]]]]).
 
-stack3([[[user1,pass1,0],[user2,pass2,0],[user3,pass2,0]],
+stack3([[["user1","pass1"],["user2","pass2"],["user3","pass2"]],
  [],
  [],[]]).
 
 
 % FUNCION DE REGISTRO
-verificar([Username|_],Username).%verifica si es el nombre
-
-agregarUsuario([Usuario],Username,Pass,[Usuario|A]):-not(verificar(Usuario,Username)),usuario(Username,Pass,A).
+agregarUsuario([],Username,Pass,[[Username,Pass]]).
+agregarUsuario([[Username|Pass]|Cola],Username,_,[[Username|Pass]|Cola]):-!.
 agregarUsuario([Primer|Siguientes],Username,Pass,[Primer|ColaNueva]):-
-    not(verificar(Primer,Username)),agregarUsuario(Siguientes,Username,Pass,ColaNueva).
+    agregarUsuario(Siguientes,Username,Pass,ColaNueva).
 
-register([A,B,C],Username,Pass,[P,B,C]):-agregarUsuario(A,Username,Pass,P).
+register([Usuarios,Preguntas,Respuestas,UsuarioActivo],Username,Pass,[UsuariosNuevos,Preguntas,Respuestas,UsuarioActivo]):-
+    agregarUsuario(Usuarios,Username,Pass,UsuariosNuevos).
+
+
 
 %  FUNCION LOGIN
-   login([A,B,C,_],Username,Pass,[A,B,C,E]):-autenticar(A,Username,Pass,E).
-   login([],_,_,[]).
+   login([Usuarios,Preguntas,Respuestas,_],Username,Pass,[Usuarios,Preguntas,Respuestas,UsuarioActivo]):-
+    autenticar(Usuarios,Username,Pass,UsuarioActivo).
 
-
-   autenticar([Usuario],Username,Pass,P):-verificarLogin(Usuario,Username,Pass,P).
-   autenticar([Primer|Siguientes],Username,Pass,Activo):-
-   verificarLogin(Primer,Username,Pass,Activo);autenticar(Siguientes,Username,Pass,Activo).
-
-   verificarLogin([Username,Pass|Cola],Username,Pass,[Username,Pass|Cola]).
+   autenticar([],_,_,[]):-!,fail.
+   autenticar([[Username,Pass]|_],Username,Pass,[Username,Pass]):-!.
+   autenticar([_|Siguientes],Username,Pass,Activo):-
+    autenticar(Siguientes,Username,Pass,Activo).
 
 %  .FUNCION ASK
 %
-ask([],_,_,_,[]).
-ask([_,_,_,D],_,_,_,[]):-D is[],fail.
+ask([Usuarios,Preguntas,Respuestas,[]],_,_,_,[Usuarios,Preguntas,Respuestas,[]]):-!,fail.
 %
 ask([Usuarios,Preguntas,Respuestas,UsuarioActivo],Fecha,TextoPregunta,ListaEtiquetas,[Usuarios,NuevasPreguntas,Respuestas,[]]):-
     contador(Preguntas,ID),pregunta(ID,UsuarioActivo,Fecha,TextoPregunta,ListaEtiquetas,PreguntaNueva),
@@ -84,6 +83,19 @@ ask([Usuarios,Preguntas,Respuestas,UsuarioActivo],Fecha,TextoPregunta,ListaEtiqu
 
     contador([],1).
     contador([_|Siguientes],ID):-contador(Siguientes,IDanterior),ID is IDanterior +1.
+
+% FUNCION ANSWER
+answer([Usuarios,Preguntas,Respuestas,[]],_,_,_,_,[Usuarios,Preguntas,Respuestas,[]]):-!,fail.
+
+answer([Usuarios,Preguntas,Respuestas,UsuarioActivo], Fecha, IDPregunta, TextoRespuesta,
+ListaEtiquetas,[Usuarios,Preguntas,RespuestasNuevas,[]]):-
+    contador(Respuestas,IDRespuesta),verificarID(Preguntas,IDPregunta),
+respuesta(IDRespuesta,UsuarioActivo,IDPregunta,Fecha,TextoRespuesta,ListaEtiquetas,
+         Respuesta).agregarRespuesta(Respuesta,Respuestas,RespuestasNuevas).
+
+verificarID([],_):-!,fail.
+verificarID([[ID|_]|_],ID).
+verificarID([_|Cola],ID):-verificarID(Cola,ID).
 
 
 
