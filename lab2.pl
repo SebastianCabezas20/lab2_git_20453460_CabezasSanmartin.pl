@@ -2,6 +2,7 @@
 EJEMPLO
  stack3(A),login(A,"user1","pass1",Stack3),ask(Stack3,20-20-2020,"Mi
  pregunta",[et1,et2,et3],Stack4),login(Stack4,"user1","pass1",Stack5),answer(Stack5,20-20-2020,1,"respuesta1",[et1,et2,et3],Stack6).
+
 stack3(A),login(A,"user1","pass1",Stack3),ask(Stack3,20-20-2020,"Mi pregunta",[et1,et2,et3],Stack4),login(Stack4,"user1","pass1",Stack5),answer(Stack5,20-20-2020,1,"respuesta1",[et1,et2,et3],Stack6),login(Stack6,"user1","pass1",Stack7),accept(Stack7,1,1,Stack8).
 */
 
@@ -114,18 +115,45 @@ agregarRespuesta(X,[H|C],[X,H|C]).
 %  FUNCION PRINCIPAL ACCEPT
 accept([Usuarios,Preguntas,Respuestas,[]],_,_,[Usuarios,Preguntas,Respuestas,[]]):-!,fail.
 accept([Usuarios,Preguntas,Respuestas,UsuarioActivo],IDPregunta,IDRespuesta,
-       [Usuarios,PreguntasVerificadas,Respuestas,[]]):-
-    verificarIDR(Respuestas,IDRespuesta),
+       [Usuarios,PreguntasVerificadas,RespuestasVerificadas,[]]):-
+    verificarIDR(Respuestas,IDRespuesta,RespuestasVerificadas),
     agregarIdRespuesta(Preguntas,IDPregunta,IDRespuesta,UsuarioActivo,PreguntasVerificadas).
 
     agregarIdRespuesta([],_,_,[]):-!,fail.
-    agregarIdRespuesta([[IDPregunta,E,[H|C],Usuario|T]|Cola],IDPregunta,IDRespuesta,[Usuario|_],[[IDPregunta,E,[IDRespuesta,H|C]|T]|Cola]).
+    agregarIdRespuesta([[IDPregunta,E,[H|C],Usuario|T]|Cola],IDPregunta,IDRespuesta,[Usuario|_],[[IDPregunta,E,[IDRespuesta,H|C]|T]|Cola]).%se agrega ID si coincide el usuario y el ID.
     agregarIdRespuesta([Primero|Cola],IDPregunta,IDRespuesta,[Usuario|Pass],[Primero|Cn]):-
     agregarIdRespuesta(Cola,IDPregunta,IDRespuesta,[Usuario,Pass],Cn).
 
-    verificarIDR([],_):-!,fail.
-    verificarIDR([[ID|_]|_],ID).
-    verificarIDR([_|Cola],ID):-verificarIDR(Cola,ID).
+    verificarIDR([],_,[]):-!,fail.
+    verificarIDR([[ID,0|T]|Cola],ID,[[ID,1|T]|Cola]).%aceptamos Respuesta si existe
+    verificarIDR([Primera|Cola],ID,[Primera,Cola2]):-verificarIDR(Cola,ID,Cola2).
+
+
+% FUNCION STACK-STRING
+
+  stackToString([Usuarios,Preguntas,Respuestas,[]],[StringUsuarios,StringPreguntas]):-
+    ordenarUsuarios(Usuarios,StringUsuarios),ordenarPreguntas(Preguntas,Respuestas,StringPreguntas).
+  stackToString([_,Preguntas,Respuestas,UsuarioActivo],[StringActivo,StringPreguntas]):-stringU(UsuarioActivo,StringActivo),
+  ordenarPreguntas(Preguntas,Respuestas,StringPreguntas).
+
+    ordenarUsuarios([],"\n").
+    ordenarUsuarios([Primero|Cola],[NuevoPrimero|ColaNueva]):-
+    stringU(Primero,NuevoPrimero),ordenarUsuarios(Cola,ColaNueva).
+    stringU([Username,Pass],['   Nombre de Usuario: ' ,Username,'   Contraseña: ',Pass,"\n"]).
+
+
+    ordenarPreguntas([],_,'\n\n').
+    ordenarPreguntas([[_,_,IDs|_]|SigPreguntas],Respuestas,['Pregunta',PregResp|ColaNueva]):-%%completar Info de pregunta
+    stringP(IDs,Respuestas,PregResp),ordenarPreguntas(SigPreguntas,Respuestas,ColaNueva).
+
+    stringP([],_,[]).
+    stringP([PrimerID|SigID],Respuestas,[E|Cola]):-
+    buscador(PrimerID,Respuestas,E),stringP(SigID,Respuestas,Cola).
+    buscador(_,[],[]).
+    buscador(ID,[[ID|_]|_],[    "Respuesta con ID",ID]):-!.%%completar datos de respuesta a entregar
+    buscador(ID,[_|SigID],Respuesta):-
+     buscador(ID,SigID,Respuesta).
+
 
 
 %
