@@ -23,13 +23,12 @@ stack3(A),login(A,"user1","pass1",Stack3),ask(Stack3,20-20-2020,"Mi pregunta",[e
 
 
 % TDA Pregunta
-% [ID,Estado,[IDs
-% respuestas],Autor,Fecha,Pregunta,[Etiquetas],pregunta, V.P,V.N] 0 =
+% [ID,Estado,[IDsrespuestas],Autor,Fecha,Pregunta,[Etiquetas],pregunta, V.P,V.N] 0 =
 % cerrada 1 = abierta Constructor
-pregunta(ID,[Nombre|_],Fecha,Pregunta,Etiquetas,[ID,1,[[]],Nombre,Fecha,Pregunta,Etiquetas,pregunta,0,0]).
+pregunta(ID,[Nombre|_],Fecha,Pregunta,Etiquetas,[ID,1,[],Nombre,Fecha,Pregunta,Etiquetas,pregunta,0,0]).
 
 % TDA Respuesta
-% (IDRespuesta,estado,IDPregunta,Fecha,Respuesta,[Etiquetas],respuesta,V.P,V.N)
+% (IDRespuesta,estado,autor,IDPregunta,Fecha,Respuesta,[Etiquetas],respuesta,V.P,V.N)
 % 0 = no aceptada 1 = aceptada Constructor
 respuesta(IDRespuesta,[Username|_],IDPregunta,Fecha,Respuesta,Etiquetas,
           [IDRespuesta,0,Username,IDPregunta,Fecha,Respuesta,Etiquetas,respuesta,0,0]).
@@ -80,7 +79,7 @@ ask([Usuarios,Preguntas,Respuestas,[]],_,_,_,[Usuarios,Preguntas,Respuestas,[]])
 %
 ask([Usuarios,Preguntas,Respuestas,UsuarioActivo],Fecha,TextoPregunta,ListaEtiquetas,[Usuarios,NuevasPreguntas,Respuestas,[]]):-
     contador(Preguntas,ID),pregunta(ID,UsuarioActivo,Fecha,TextoPregunta,ListaEtiquetas,PreguntaNueva),
-    agregar(Preguntas,PreguntaNueva,NuevasPreguntas).
+    agregar(PreguntaNueva,Preguntas,NuevasPreguntas).
 
     contador([],1).
     contador([_|Siguientes],ID):-contador(Siguientes,IDanterior),ID is IDanterior +1.
@@ -109,7 +108,7 @@ accept([Usuarios,Preguntas,Respuestas,UsuarioActivo],IDPregunta,IDRespuesta,
     agregarIdRespuesta(Preguntas,IDPregunta,IDRespuesta,UsuarioActivo,PreguntasVerificadas).
 
     agregarIdRespuesta([],_,_,_,[]):-!,fail.
-    agregarIdRespuesta([[IDPregunta,E,[H|C],Usuario|T]|Cola],IDPregunta,IDRespuesta,[Usuario|_],[[IDPregunta,E,[IDRespuesta,H|C]|T]|Cola]).%se agrega ID si coincide el usuario y el ID.
+    agregarIdRespuesta([[IDPregunta,E,IDs,Usuario|T]|Cola],IDPregunta,IDRespuesta,[Usuario|_],[[IDPregunta,E,IDsN,Usuario|T]|Cola]):-agregar(IDRespuesta,IDs,IDsN).%se agrega ID si coincide el usuario y el ID.
     agregarIdRespuesta([Primero|Cola],IDPregunta,IDRespuesta,[Usuario|Pass],[Primero|Cn]):-
     agregarIdRespuesta(Cola,IDPregunta,IDRespuesta,[Usuario,Pass],Cn).
 %agregamos 1 a aceptada respuesta
@@ -132,16 +131,20 @@ accept([Usuarios,Preguntas,Respuestas,UsuarioActivo],IDPregunta,IDRespuesta,
 
 
     ordenarPreguntas([],_,'\n\n').
-    ordenarPreguntas([[_,_,IDs|_]|SigPreguntas],Respuestas,['Pregunta',PregResp|ColaNueva]):-%%completar Info de pregunta
+    ordenarPreguntas([[_,_,IDs,A,_,PP,_,_,P,N]|SigPreguntas],Respuestas,["El usuario",A,"Pregunta:",PP,"\n  Like",P,"Dislike",N,"\nRESPUESTAS:\n",PregResp|ColaNueva]):-%%completa
     stringP(IDs,Respuestas,PregResp),ordenarPreguntas(SigPreguntas,Respuestas,ColaNueva).
 
     stringP([],_,[]).
     stringP([PrimerID|SigID],Respuestas,[E|Cola]):-
     buscador(PrimerID,Respuestas,E),stringP(SigID,Respuestas,Cola).
     buscador(_,[],[]).
-    buscador(ID,[[ID|_]|_],[    "Respuesta con ID",ID]):-!.%%completar datos de respuesta a entregar
+    buscador(ID,[[ID,_,_,_,_,R,_,_,G,N]|_],[ID,"    Respuesta:",R," Like:",G,"Dislike:",N]):-!.
     buscador(ID,[_|SigID],Respuesta):-
      buscador(ID,SigID,Respuesta).
+
+
+
+
 
 
 % VOTE
@@ -152,34 +155,52 @@ getQuestion([_,Preguntas,_,UsuarioActivo],IDPregunta,Pregunta):-
     verificarUsername(_,_,[]):-!,fail.
     verificarUsername([Username|_],ID,[[ID,_,Username|_]|_]).
     verificarUsername([Usuario],ID,[_,SiguientePregunta]):-verificarUsername(Usuario,ID,SiguientePregunta).
+
     buscador2(ID,[[ID|Cola]|_],[ID|Cola]).
     buscador2(ID,[_|Sig],Pregunta):-buscador2(ID,Sig,Pregunta).
 
 getAnswer([_,_,_,[]],_,_,[]):-!,fail.
-getAnswer([_,Preguntas,Respuestas,_],IDPregunta,IDrespuesta,Respuesta):-verificar2(Preguntas,Respuestas,IDPregunta,IDrespuesta),buscador2(IDrespuesta,Respuestas,Respuesta).%verificar que es respuesta de pregunta
-   verificar2([],_,_,_):-!,fail.
-   verificar2([[IDPregunta,_,[IDs]|_]|_],[Respuestas],IDPregunta,IDrespuesta):-idCorres(IDs,IDrespuesta,Respuestas).
-    verificar2([_|Cola],[Respuestas],IDP,IDR):-verificar2(Cola,Respuestas,IDP,IDR).
+getAnswer([_,Preguntas,Respuestas,_],IDPregunta,IDrespuesta,Respuesta):-verificar2(Preguntas,IDPregunta,IDrespuesta),buscador2(IDrespuesta,Respuestas,Respuesta).%verificar que es respuesta de pregunta
+
+   verificar2([],_,_):-!,fail.
+   verificar2([[IDPregunta,_,[IDs]|_]|_],IDPregunta,IDrespuesta):-idCorres(IDs,IDrespuesta).
+   verificar2([_|Cola],IDP,IDR):-verificar2(Cola,IDP,IDR).
+   idCorres([],_):-!,fail.
+   idCorres([ID|_],ID).
+   idCorres([_|Cola],ID):-idCorres(Cola,ID).
+
 % verificar de que el id de la respuesta sea con la pregunta peroooo
 % desde la respuesta
 
 %respuesta NEGATIVA
-vote([U,P,Respuestas,_],[ID,_,_,_,_,_,respuesta|_],Boolean,[U,P,RN,[]]):-Boolean is false,votarNegativoR(ID,Respuestas,RN).
+vote([U,P,Respuestas,_],[ID,_,_,_,_,_,_,respuesta|_],false,[U,P,RN,[]]):-votarNegativoR(ID,Respuestas,RN).
 %respuesta POSITIVA
-vote([U,P,Respuestas,_],[ID,_,_,_,_,_,respuesta|_],Boolean,[U,P,RN,[]]):-Boolean is true,votarPositivoR(ID,Respuestas,RN).
+vote([U,P,Respuestas,_],[ID,_,_,_,_,_,_,respuesta|_],true,[U,P,RN,[]]):-votarPositivoR(ID,Respuestas,RN).
 %pregunta NEGATIVA
-vote([U,P,R,_],[ID,_,_,_,_,_,_,pregunta|_],Boolean,[U,PN,R,[]]):-Boolean is false,votarNegativoP(ID,P,PN).
+vote([U,P,R,_],[ID,_,_,_,_,_,_,pregunta|_],false,[U,PN,R,[]]):-votarNegativoP(ID,P,PN).
 %pregunta POSITIVA
-vote([U,P,R,_],[ID,_,_,_,_,_,_,pregunta|_],Boolean,[U,PN,R,[]]):-Boolean is true,votarPositivoP(ID,P,PN).
+vote([U,P,R,_],[ID,_,_,_,_,_,_,pregunta|_],true,[U,PN,R,[]]):-votarPositivoP(ID,P,PN).
 
 votarNegativoR(_,[],[]).
-votarNegativoR(ID,[[ID,A,B,C,D,E,F,G,N]|SR],[[ID,A,B,C,D,E,F,G,NN]|SR]):-NN is N+1.
+votarNegativoR(ID,[[ID,A,B,C,D,E,F,G,N]|SR],[[ID,A,B,C,D,E,F,G,NN]|SR]):-NN is N+1.%[]
 votarNegativoR(ID,[R|Rs],[R|Rss]):-votarNegativoR(ID,Rs,Rss).
 
+votarPositivoR(_,[],[]).
+votarPositivoR(ID,[[ID,A,B,C,D,E,F,G,N]|SR],[[ID,A,B,C,D,E,F,GG,N]|SR]):-GG is G+1.
+votarPositivoR(ID,[R|Rs],[R|Rss]):-votarPositivoR(ID,Rs,Rss).
+
+votarNegativoP(_,[],[]).
+votarNegativoP(ID,[[ID,A,B,C,D,E,F,G,P,N]|SR],[[ID,A,B,C,D,E,F,G,P,NN]|SR]):-NN is N+1.
+votarNegativoP(ID,[R|Rs],[R|Rss]):-votarNegativoP(ID,Rs,Rss).
+
+votarPositivoP(_,[],[]).
+votarPositivoP(ID,[[ID,A,B,C,D,E,F,G,P,N]|SR],[[ID,A,B,C,D,E,F,G,PP,N]|SR]):-PP is P+1.
+votarPositivoP(ID,[R|Rs],[R|Rss]):-votarPositivoP(ID,Rs,Rss).
 
 
 
-%(IDRespuesta,estado,IDPregunta,Fecha,Respuesta,[Etiquetas],respuesta)
+
+%(Idrespuesta,Estado,IDPregunta,Fecha,Respuesta,[Etiquetas],respuesta)
 %[ID,Estado,[IDs respuestas],Autor,Fecha,Pregunta,[Etiquetas],pregunta]
 %
 %
@@ -200,31 +221,6 @@ votarNegativoR(ID,[R|Rs],[R|Rss]):-votarNegativoR(ID,Rs,Rss).
 %
 %
 %
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
