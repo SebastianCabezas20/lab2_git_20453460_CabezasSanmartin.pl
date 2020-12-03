@@ -6,16 +6,47 @@ EJEMPLO
 stack3(A),login(A,"user1","pass1",Stack3),ask(Stack3,20-20-2020,"Mi pregunta",[et1,et2,et3],Stack4),login(Stack4,"user1","pass1",Stack5),answer(Stack5,20-20-2020,1,"respuesta1",[et1,et2,et3],Stack6),login(Stack6,"user1","pass1",Stack7),accept(Stack7,1,1,Stack8).
 */
 
-%DOM
-%Nombre,Pass,ID,Autor,Fecha,Respuesta;pregunta
-%
-%   Predicados
-%usuario(Nombre,pass,Lista)
-%pregunta(ID,Autor,Fecha,Pregunta,Etiquetas,Lista)
-%respuesta(IDRespuesta,IDPregunta,Fecha,Respuesta,Etiquetas,Lista)
-%agregarUsuarioActivo(Lista,Usuario,Lista).
-%register(Lista,Username,Pass,Lista).
 
+%   Predicados
+% pregunta(ID,Autor,Fecha,Pregunta,Etiquetas,ListaPregunta)
+% respuesta(IDRespuesta,IDPregunta,Fecha,Respuesta,Etiquetas,ListaRespuesta)
+% agregarUsuario(ListaUsuarios,Usuario,ListaUsuarios2).
+% register(Stack,Username,Pass,Stack2).
+% login(Stack,Username,Pass,Stack2)
+% autenticar(ListaUsuarios,Username,Pass,Usuario)
+% ask(Stack,Fecha,TextoPregunta,ListaEtiquetas,Stack2)
+% contador(Lista,Total)
+% answer(Stack, Fecha, IDPregunta, TextoRespuesta,ListaEtiquetas,Stack2)
+% verificarID(ListaPreguntas,IDPregunta)
+% agregar(Lista,Lista2)
+% accept(Stack,IDPregunta,IDRespuesta,Stack2)
+% agregarIdRespuesta(ListaPreguntas,IDPregunta,IDRespuesta,Usuario,ListaPreguntas2)
+% verificarIDR([ListaRespuestas,IDRespuesta,ListaRespuestas2).
+% stackToString(Stack,String)
+% ordenarUsuarios(ListaUsuarios,String)
+% stringU(Usuario,String)
+% ordenarPreguntas([ListaPreguntas,listaRespuestas,String)
+% stringP(ListaIDs,ListaRespuestas,String)
+% buscador(IDRespuesta,ListaRespuestas,String)
+% getQuestion(Stack,IDPregunta,Pregunta):
+% verificarUsername(Usuario,IDPregunta,ListaPregunta)
+% buscador2(ID,Lista,Elemento)
+% getAnswer(Stack,IDPregunta,IDrespuesta,Respuesta)
+% verificar2(ListaPreguntas,IDPregunta,IDrespuesta)
+% idCorres(ListaIDs,ID)
+% vote(Stack,Elemento,boolean,Stack2)
+% votarNegativoR(IDRespuesta,ListaRespuestas,ListaRespuestas2,ListaUsuarios,ListaUsuarios2)
+% votarPositivoR(IDRespuesta,ListaRespuesta,ListaRespuestas2,ListaUsuarios,ListaUsuarios2)
+% votarNegativoP(IDPregunta,ListaPreguntas,ListaPreguntas2,ListaUsuarios,ListaUsuarios2)
+% votarPositivoP(IDPregunta,ListaPreguntas,ListaPreguntas2,ListaUsuarios,ListaUsuarios2)
+% reputacion(ListaUsuarios,Username,Boolean,Reputacion,ListaUsuarios2)
+
+
+%hechos
+
+%reglas
+
+%TDA stack
 %([usuarios], [preguntas], [respuestas],usuarioActivo)
 
 % TDA usuario
@@ -53,7 +84,7 @@ stack3([[["user1","pass1",0],["user2","pass2",0],["user3","pass2",0]],
  [],[]]).
 
 
-% FUNCION DE REGISTRO
+% REGISTRO
 agregarUsuario([],Username,Pass,[[Username,Pass,0]]).
 agregarUsuario([[Username,Pass,R]|Cola],Username,_,[[Username,Pass,R]|Cola]):-!.
 agregarUsuario([Primer|Siguientes],Username,Pass,[Primer|ColaNueva]):-
@@ -64,7 +95,7 @@ register([Usuarios,Preguntas,Respuestas,UsuarioActivo],Username,Pass,[UsuariosNu
 
 
 
-%  FUNCION LOGIN
+%  LOGIN
    login([Usuarios,Preguntas,Respuestas,_],Username,Pass,[Usuarios,Preguntas,Respuestas,UsuarioActivo]):-
     autenticar(Usuarios,Username,Pass,UsuarioActivo).
 
@@ -73,7 +104,7 @@ register([Usuarios,Preguntas,Respuestas,UsuarioActivo],Username,Pass,[UsuariosNu
    autenticar([_|Siguientes],Username,Pass,Activo):-
     autenticar(Siguientes,Username,Pass,Activo).
 
-%  .FUNCION ASK
+%  ASK
 %
 ask([Usuarios,Preguntas,Respuestas,[]],_,_,_,[Usuarios,Preguntas,Respuestas,[]]):-!,fail.
 %
@@ -82,9 +113,9 @@ ask([Usuarios,Preguntas,Respuestas,UsuarioActivo],Fecha,TextoPregunta,ListaEtiqu
     agregar(PreguntaNueva,Preguntas,NuevasPreguntas).
 
     contador([],1).
-    contador([_|Siguientes],ID):-contador(Siguientes,IDanterior),ID is IDanterior +1.
+    contador([_|Siguientes],Total):-contador(Siguientes,IDanterior),Total is IDanterior +1.
 
-% FUNCION ANSWER
+% ANSWER
 answer([Usuarios,Preguntas,Respuestas,[]],_,_,_,_,[Usuarios,Preguntas,Respuestas,[]]):-!,fail.
 
 answer([Usuarios,Preguntas,Respuestas,UsuarioActivo], Fecha, IDPregunta, TextoRespuesta,
@@ -100,7 +131,7 @@ verificarID([_|Cola],ID):-verificarID(Cola,ID).
 agregar(X,[],[X]).
 agregar(X,[H|C],[X,H|C]).
 
-%  FUNCION PRINCIPAL ACCEPT
+%    ACCEPT
 accept([Usuarios,Preguntas,Respuestas,[]],_,_,[Usuarios,Preguntas,Respuestas,[]]):-!,fail.
 accept([Usuarios,Preguntas,Respuestas,UsuarioActivo],IDPregunta,IDRespuesta,
        [Usuarios,PreguntasVerificadas,RespuestasVerificadas,[]]):-
@@ -117,7 +148,7 @@ accept([Usuarios,Preguntas,Respuestas,UsuarioActivo],IDPregunta,IDRespuesta,
     verificarIDR([Primera|Cola],ID,[Primera,Cola2]):-verificarIDR(Cola,ID,Cola2).
 
 
-% FUNCION STACK-STRING
+%  STACK-STRING
 
   stackToString([Usuarios,Preguntas,Respuestas,[]],[StringUsuarios,StringPreguntas]):-
     ordenarUsuarios(Usuarios,StringUsuarios),ordenarPreguntas(Preguntas,Respuestas,StringPreguntas).
@@ -131,14 +162,14 @@ accept([Usuarios,Preguntas,Respuestas,UsuarioActivo],IDPregunta,IDRespuesta,
 
 
     ordenarPreguntas([],_,'\n\n').
-    ordenarPreguntas([[_,_,IDs,A,_,PP,_,_,P,N]|SigPreguntas],Respuestas,["El usuario",A,"Pregunta:",PP,"\n  Like:",P,"Dislike:",N,"\nRESPUESTAS:\n",PregResp|ColaNueva]):-%%completa
+    ordenarPreguntas([[ID,_,IDs,A,_,PP,E,_,P,N]|SigPreguntas],Respuestas,["   El usuario",A,"Pregunta:",PP,"   Etiquetas:",E,"\n     Like:",P,"Dislike:",N,"        ID:",ID,"\n",PregResp|ColaNueva]):-
     stringP(IDs,Respuestas,PregResp),ordenarPreguntas(SigPreguntas,Respuestas,ColaNueva).
 
-    stringP([],_,[]).
-    stringP([PrimerID|SigID],Respuestas,[E|Cola]):-
+    stringP([],_,"\n").
+    stringP([PrimerID|SigID],Respuestas,[ "      RESPUESTAS:\n",[E|Cola]]):-
     buscador(PrimerID,Respuestas,E),stringP(SigID,Respuestas,Cola).
     buscador(_,[],[]).
-    buscador(ID,[[ID,_,_,_,_,R,_,_,G,N]|_],[ID,"    Respuesta:",R," Like:",G,"Dislike:",N]):-!.
+    buscador(ID,[[ID,_,U,_,_,R,E,_,G,N]|_],["          El usuario:" ,U,"respondio" ,R ,"  Etiquetas:",E,"\n      Like:",G,"Dislike:",N,"        ID:",ID,"\n"]):-!.
     buscador(ID,[_|SigID],Respuesta):-
      buscador(ID,SigID,Respuesta).
 
@@ -164,8 +195,6 @@ getAnswer([_,Preguntas,Respuestas,_],IDPregunta,IDrespuesta,Respuesta):-verifica
    idCorres([ID|_],ID).
    idCorres([_|Cola],ID):-idCorres(Cola,ID).
 
-% verificar de que el id de la respuesta sea con la pregunta peroooo
-% desde la respuesta
 
 %respuesta NEGATIVA
 vote([U,P,Respuestas,[Username|_]],[ID,_,_,_,_,_,_,respuesta|_],false,[UNN,P,RN,[]]):-votarNegativoR(ID,Respuestas,RN,U,UN),reputacion(UN,Username,resta,1,UNN).
@@ -202,28 +231,6 @@ reputacion([[Username,Pass,R]|C],Username,resta,Reputacion,[[Username,Pass,RR]|C
 reputacion([PrimerUsuario|SigUsuario],Username,resta,Reputacion,[PrimerUsuario|Cola]):-
    reputacion(SigUsuario,Username,resta,Reputacion,Cola).
 
-
-%(Idrespuesta,Estado,IDPregunta,Fecha,Respuesta,[Etiquetas],respuesta)
-%[ID,Estado,[IDs respuestas],Autor,Fecha,Pregunta,[Etiquetas],pregunta]
-%(IDRespuesta,estado,autor,IDPregunta,Fecha,Respuesta,[Etiquetas],respuesta,V.P,V.N)
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
-%
 
 
 
