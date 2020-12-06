@@ -203,7 +203,7 @@ agregarUsuario([Primer|Siguientes],Username,Pass,[Primer|ColaNueva]):-
 %Entrada:Stack,username,pass
 %Salida: Stack modificado
 %descrip: registra a un nuevo usuario
-register([Usuarios,Preguntas,Respuestas,UsuarioActivo],Username,Pass,[UsuariosNuevos,Preguntas,Respuestas,UsuarioActivo]):-
+stackRegister([Usuarios,Preguntas,Respuestas,UsuarioActivo],Username,Pass,[UsuariosNuevos,Preguntas,Respuestas,UsuarioActivo]):-
     agregarUsuario(Usuarios,Username,Pass,UsuariosNuevos).
 
 
@@ -212,7 +212,7 @@ register([Usuarios,Preguntas,Respuestas,UsuarioActivo],Username,Pass,[UsuariosNu
 %Entrada:Stack,username,pass
 %Salida: Stack modificado
 %descrip: Autenticacion de cuenta usuario
-   login([Usuarios,Preguntas,Respuestas,_],Username,Pass,[Usuarios,Preguntas,Respuestas,UsuarioActivo]):-
+stackLogin([Usuarios,Preguntas,Respuestas,_],Username,Pass,[Usuarios,Preguntas,Respuestas,UsuarioActivo]):-
     autenticar(Usuarios,Username,Pass,UsuarioActivo).
 
     %Entrada:Lista usuarios,username,pass
@@ -294,7 +294,7 @@ accept([Usuarios,Preguntas,Respuestas,UsuarioActivo],IDPregunta,IDRespuesta,
     %descrip: ordena los usuarios,preguntas y respuestas en un string
   stackToString([Usuarios,Preguntas,Respuestas,[]],[StringUsuarios,StringPreguntas]):-
     ordenarUsuarios(Usuarios,StringUsuarios),ordenarPreguntas(Preguntas,Respuestas,StringPreguntas).
-  stackToString([_,Preguntas,Respuestas,UsuarioActivo],[StringActivo,StringPreguntas]):-stringU(UsuarioActivo,StringActivo),
+  stackToString([_,Preguntas,Respuestas,UsuarioActivo],[StringActivo,"\n",StringPreguntas]):-stringU(UsuarioActivo,StringActivo),
   ordenarPreguntas(Preguntas,Respuestas,StringPreguntas).
 
     %entrada:Lista usuarios
@@ -433,39 +433,50 @@ reputacion([PrimerUsuario|SigUsuario],Username,resta,Reputacion,[PrimerUsuario|C
 
 /*
 EJEMPLOS
+REGISTER
+stack(Stack),stackRegister(Stack,"userNuevo","passNuevo",Stack2).
+stack(Stack),stackRegister(Stack,"user20","1234",Stack2).
+stack(Stack),stackRegister(Stack,"user1","pass1",Stack2).
 
-stack(Stack),register(Stack,"userNuevo","passNuevo",Stack2).
-stack(Stack),register(Stack,"user20","1234",Stack2).
-stack(Stack),register(Stack,"user1","pass1",Stack2).
-
+LOGIN
 -- primera correcta,segunda contraseña incorrecta,tercera usuarionoexiste
 
-stack(Stack),login(Stack,"user1","pass1",Stack2).
-stack(Stack),login(Stack,"user2","pass1",Stack2).
-stack(Stack),login(Stack,"user29","pass29",Stack2).
+stack(Stack),stackLogin(Stack,"user1","pass1",Stack2).
+stack(Stack),stackLogin(Stack,"user2","pass1",Stack2).
+stack(Stack),stackLogin(Stack,"user29","pass29",Stack2).
 
+ASK
 ---Primeracorrecta,segunda error de pass,sin login.
-stack(Stack),login(Stack,"user1","pass1",Stack2),ask(Stack2,20-12-2020,"PreguntaE1",[et1,et2,et3],Stack3).
-stack(Stack),login(Stack,"user1","pass2",Stack2),ask(Stack2,14-12-2020,"PreguntaE2",[Et1,et2,et3],Stack3).
+stack(Stack),stackLogin(Stack,"user1","pass1",Stack2),ask(Stack2,20-12-2020,"PreguntaE1",[et1,et2,et3],Stack3).
+stack(Stack),stackLogin(Stack,"user1","pass2",Stack2),ask(Stack2,14-12-2020,"PreguntaE2",[Et1,et2,et3],Stack3).
 stack(Stack),ask(Stack,24-12-2020,"PreguntaE3",[et1,et2,et3],Stack2).
 
----primera correcta,segunda pregunta no existe, tercera error son login
-stack(Stack),login(Stack,"user2","pass2",Stack2),answer(Stack2,20-12-2020,1,"RespuestaE1",[Et1,et2,et3],Stack3).
-stack(Stack),login(Stack,"user2","pass2",Stack2),answer(Stack2,20-12-2020,20,"RespuestaE2",[Et1,et2,et3],Stack3).
+ANSWER ---primera correcta,segunda pregunta no existe, tercera error son
+login
+stack(Stack),stackLogin(Stack,"user2","pass2",Stack2),answer(Stack2,20-12-2020,1,"RespuestaE1",[Et1,et2,et3],Stack3).
+stack(Stack),stackLogin(Stack,"user2","pass2",Stack2),answer(Stack2,20-12-2020,20,"RespuestaE2",[Et1,et2,et3],Stack3).
 stack(Stack),answer(Stack2,20-12-2020,1,"RespuestaE3",[Et1,et2,et3],Stack3).
 
+
+
+ACCEPT
 -Primera correcta,segunda el usuario no le pertenece,tercero sin login
-stack(Stack),login(Stack,"user4","pass4",Stack2),accept(Stack2,4,7,Stack3).
-stack(Stack),login(Stack,"user4","pass4",Stack2),accept(Stack2,5,9,Stack3).
+stack(Stack),stackLogin(Stack,"user4","pass4",Stack2),accept(Stack2,4,7,Stack3).
+stack(Stack),stacklogin(Stack,"user4","pass4",Stack2),accept(Stack2,5,9,Stack3).
 stack(Stack),accept(Stack2,4,7,Stack3).
+
+STACKTOSTRING
 --
-stack(Stack),login(Stack,"user1","pass1",Stack2),stackToString(Stack2,String),write(String).
+stack(Stack),stackLogin(Stack,"user1","pass1",Stack2),stackToString(Stack2,String),write(String).
 stack(Stack),stackToString(Stack2,String),write(String).
-stack(Stack),login(Stack,"user1","pass1",Stack2),stackToString(Stack2,String),write(String).
+stack(Stack),stackLogin(Stack,"user2","pass2",Stack2),stackToString(Stack2,String),write(String).
+
+VOTE
 -----------
-stack(Stack),login(Stack,"user1","pass1",Stack2),getQuestion(Stack2,1,P),vote(Stack2,P,true,Stack3).
-stack(Stack),login(Stack,"user1","pass1",Stack2),getQuestion(Stack2,1,P),vote(Stack2,P,false,Stack3).
-stack(Stack),login(Stack,"user1","pass1",Stack2),getAnswer(Stack2,1,,2,R),vote(Stack2,R,true,Stack3).
+stack(Stack),stackLogin(Stack,"user1","pass1",Stack2),getQuestion(Stack2,1,P),vote(Stack2,P,true,Stack3).
+stack(Stack),stackLogin(Stack,"user1","pass1",Stack2),getQuestion(Stack2,1,P),vote(Stack2,P,false,Stack3).
+stack(Stack),stackLogin(Stack,"user1","pass1",Stack2),getAnswer(Stack2,1,,2,R),vote(Stack2,R,true,Stack3).
+
 */
 
 
