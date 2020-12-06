@@ -1,8 +1,8 @@
 /*
-EJEMPLO
+EJEMPLOs
 
 stack(Stack),register(Stack,"userNuevo","passNuevo",Stack2).
-stack2(Stack),register(Stack,"user20","1234",Stack2).
+stack(Stack),register(Stack,"user20","1234",Stack2).
 stack(Stack),register(Stack,"user1","pass1",Stack2).
 -- primera correcta,segunda contraseña incorrecta,tercera usuarionoexiste
 stack(Stack),login(Stack,"user1","pass1",Stack2).
@@ -29,55 +29,47 @@ stack(Stack),login(Stack,"user1","pass1",Stack2),getQuestion(Stack2,1,P),vote(St
 stack(Stack),login(Stack,"user1","pass1",Stack2),getQuestion(Stack2,1,P),vote(Stack2,P,false,Stack3).
 stack(Stack),login(Stack,"user1","pass1",Stack2),getAnswer(Stack2,1,,2,R),vote(Stack2,R,true,Stack3).
 
-
-
-
-%TDA stack
-%([usuarios], [preguntas], [respuestas],usuarioActivo)
-
-% TDA usuario
-%[username,pass,0]
-modificador
-agregarUsuario(Usuarios,Username,Pass,UsuariosNuevos,[UsuarioAgregado]).
-reputacion(usuarios,username,operacion,reputacion).
-
-
-% TDA Pregunta
-% [ID,Estado,[IDsrespuestas],Autor,Fecha,Pregunta,[Etiquetas],pregunta, V.P,V.N]
-0 = cerrada 1 = abierta
-Constructor
-pregunta(ID,Autor,Fecha,Pregunta,Etiquetas,[Pregunta]).
-modificadores
-agregarIdRespuesta(Preguntas,IDPregunta,IDRespuesta,Usuario,PreguntasConID)
-
-% TDA Respuesta
-% (IDRespuesta,estado,autor,IDPregunta,Fecha,Respuesta,[Etiquetas],respuesta,V.P,V.N)
-% 0 = no aceptada 1 = aceptada
-Constructor
-respuesta(IDRespuesta,Autor,IDPregunta,Fecha,Respuesta,Etiquetas,[Respuesta]).
-
-modificadores
-verificarID([Respuestas],ID,[RespuestasVerificadas])
-
-
-
-
+DOM
+ID pregunta:Numero que corresponde al ID de la pregunta
+ID respuesta:Numero que corresponde al ID de la respuesta
+Autor: String que corresponde al autor de pregunta o respuesta
+Fecha: Numeros que corresponden a la fecha tal que dia-mes-año
+Texto: String
+Etiquetas: lista con las etiquetas
+ListaPregunta: lista que corresponde a la pregunta
+listaPreguntas: lista que corresponden a las preguntas
+listaPreguntas: lista que corresponden a las preguntas modificada.
+Stack : Lista que contiene usuarios,preguntas y respuestas
+Stack2 :Lista que contiene usuarios,preguntas y respuestas modificado
+Username: string con el nombre del usuario
+Pass: string con la contraseña del usuario
+Lista: lista que puede corresponder a preguntas o respuestas.
+Total: Numero que corresponde al total de elementos
+Usuario: lista que corresponde al usuario
+ListaRespuestas : Lista de Respuestas
+ListaRespuestas2 : Lista de respuestas modificada
+String: Corresponde a string con stack
+ListaUsuarios: lista usuarios
+ListaUsuarios2: lista usuarios modificado
+ListaIDs: lista con ID de respuesta
+Boolean: booleano que corresponde a true o false
+Reputacion: numero que indica reputacion.
 
 */
 
 
 %   Predicados
-% pregunta(ID,Autor,Fecha,Pregunta,Etiquetas,ListaPregunta)
-% respuesta(IDRespuesta,IDPregunta,Fecha,Respuesta,Etiquetas,ListaRespuesta)
+% pregunta(IDPregunta,Autor,Fecha,Texto,Etiquetas,ListaPregunta)
+% respuesta(IDRespuesta,IDPregunta,Fecha,Texto,Etiquetas,ListaRespuesta)
 % agregarUsuario(ListaUsuarios,Usuario,ListaUsuarios2).
 % register(Stack,Username,Pass,Stack2).
 % login(Stack,Username,Pass,Stack2)
 % autenticar(ListaUsuarios,Username,Pass,Usuario)
-% ask(Stack,Fecha,TextoPregunta,ListaEtiquetas,Stack2)
+% ask(Stack,Fecha,Texto,Etiquetas,Stack2)
 % contador(Lista,Total)
-% answer(Stack, Fecha, IDPregunta, TextoRespuesta,ListaEtiquetas,Stack2)
+% answer(Stack, Fecha, IDPregunta, Texto,Etiquetas,Stack2)
 % verificarID(ListaPreguntas,IDPregunta)
-% agregar(Lista,Lista2)
+% agregar(Lista,Lista)
 % accept(Stack,IDPregunta,IDRespuesta,Stack2)
 % agregarIdRespuesta(ListaPreguntas,IDPregunta,IDRespuesta,Usuario,ListaPreguntas2)
 % verificarIDR([ListaRespuestas,IDRespuesta,ListaRespuestas2).
@@ -112,10 +104,16 @@ verificarID([Respuestas],ID,[RespuestasVerificadas])
   getAnswer(Stack,IDPregunta,IDrespuesta,Respuesta)
   vote(Stack,Elemento,boolean,Stack2)
     Secundarias
+    pregunta(ID,Autor,Fecha,Pregunta,Etiquetas,ListaPregunta)
+  respuesta(IDRespuesta,IDPregunta,Fecha,Respuesta,Etiquetas,ListaRespuesta)
+  agregarUsuario(ListaUsuarios,Usuario,ListaUsuarios2)
+  autenticar(ListaUsuarios,Username,Pass,Usuario)
+  contador(Lista,Total) answer(Stack, Fecha, IDPregunta,
+  TextoRespuesta,ListaEtiquetas,Stack2)
+  verificarID(ListaPreguntas,IDPregunta) agregar(Lista,Lista2)
   agregarIdRespuesta(ListaPreguntas,IDPregunta,IDRespuesta,Usuario,ListaPreguntas2)
   verificarIDR([ListaRespuestas,IDRespuesta,ListaRespuestas2).
-  ordenarUsuarios(ListaUsuarios,String)
-  stringU(Usuario,String)
+  ordenarUsuarios(ListaUsuarios,String) stringU(Usuario,String)
   ordenarPreguntas([ListaPreguntas,listaRespuestas,String)
   stringP(ListaIDs,ListaRespuestas,String)
   buscador(IDRespuesta,ListaRespuestas,String)
@@ -129,7 +127,25 @@ verificarID([Respuestas],ID,[RespuestasVerificadas])
   votarPositivoP(IDPregunta,ListaPreguntas,ListaPreguntas2,ListaUsuarios,ListaUsuarios2)
   reputacion(ListaUsuarios,Username,Boolean,Reputacion,ListaUsuarios2)
 
-  */
+
+%TDA stack
+%([usuarios], [preguntas], [respuestas],usuarioActivo)
+
+% TDA usuario
+%[username,pass,0]
+modificador
+agregarUsuario(Usuarios,Username,Pass,UsuariosNuevos,[UsuarioAgregado]).
+reputacion(usuarios,username,operacion,reputacion).
+
+
+% TDA Pregunta
+% [ID,Estado,[IDsrespuestas],Autor,Fecha,Pregunta,[Etiquetas],pregunta, V.P,V.N]
+0 = cerrada 1 = abierta
+Constructor
+pregunta(ID,Autor,Fecha,Pregunta,Etiquetas,[Pregunta]).
+modificadores
+agregarIdRespuesta(Preguntas,IDPregunta,IDRespuesta,Usuario,PreguntasConID)
+*/
 
 %hechos%
 
@@ -152,16 +168,26 @@ stack([[["user1","pass1",0],["user2","pass2",0],["user3","pass3",0],["user4","pa
  [9,0,"user3",5,20-20-2020,"respuesta9",[et1,et2,et3],respuesta,0,0],
  [10,0,"user4",5,20-20-2020,"respuesta10",[et1,et2,et3],respuesta,0,0]],[]]).
 
-
+%stack 2 sin respuestas aceptadas
 stack2([[["user1","pass1",0],["user2","pass2",0],["user3","pass3",0],["user4","pass4",0]],
- [],
- [],[]]).
+ [[1,1,[],"user1",20-20-2020,"pregunta1",[et1,et2,et3],pregunta,0,0],
+ [2,1,[],"user2",20-20-2020,"pregunta2",[et1,et2,et3],pregunta,0,0],
+ [3,1,[],"user3",20-20-2020,"pregunta3",[et1,et2,et3],pregunta,0,0],
+ [4,1,[],"user4",20-20-2020,"pregunta4",[et1,et2,et3],pregunta,0,0],
+ [5,1,[],"user1",20-20-2020,"pregunta5",[et1,et2,et3],pregunta,0,0]],
+ [[1,1,"user3",1,20-20-2020,"respuesta1",[et1,et2,et3],respuesta,0,0],
+  [2,1,"user4",1,20-20-2020,"respuesta2",[et1,et2,et3],respuesta,0,0],
+ [3,1,"user2",2,20-20-2020,"respuesta3",[et1,et2,et3],respuesta,0,0],
+ [4,1,"user2",2,20-20-2020,"respuesta4",[et1,et2,et3],respuesta,0,0],
+ [5,1,"user2",3,20-20-2020,"respuesta5",[et1,et2,et3],respuesta,0,0],
+ [6,1,"user1",3,20-20-2020,"respuesta6",[et1,et2,et3],respuesta,0,0],
+ [7,0,"user2",4,20-20-2020,"respuesta7",[et1,et2,et3],respuesta,0,0],
+ [8,0,"user1",4,20-20-2020,"respuesta8",[et1,et2,et3],respuesta,0,0],
+ [9,0,"user3",5,20-20-2020,"respuesta9",[et1,et2,et3],respuesta,0,0],
+ [10,0,"user4",5,20-20-2020,"respuesta10",[et1,et2,et3],respuesta,0,0]],[]]).
 
 
 %reglas
-
-
-
 pregunta(ID,[Nombre|_],Fecha,Pregunta,Etiquetas,[ID,1,[],Nombre,Fecha,Pregunta,Etiquetas,pregunta,0,0]).
 
 respuesta(IDRespuesta,[Username|_],IDPregunta,Fecha,Respuesta,Etiquetas,
