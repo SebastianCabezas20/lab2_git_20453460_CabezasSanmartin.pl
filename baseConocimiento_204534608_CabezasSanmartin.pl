@@ -434,6 +434,7 @@ reputacion([PrimerUsuario|SigUsuario],Username,resta,Reputacion,[PrimerUsuario|C
 /*
 EJEMPLOS
 REGISTER
+--Tercer error ya que existe
 stack(Stack),stackRegister(Stack,"userNuevo","passNuevo",Stack2).
 stack(Stack),stackRegister(Stack,"user20","1234",Stack2).
 stack(Stack),stackRegister(Stack,"user1","pass1",Stack2).
@@ -455,7 +456,7 @@ ANSWER ---primera correcta,segunda pregunta no existe, tercera error son
 login
 stack(Stack),stackLogin(Stack,"user2","pass2",Stack2),answer(Stack2,20-12-2020,1,"RespuestaE1",[Et1,et2,et3],Stack3).
 stack(Stack),stackLogin(Stack,"user2","pass2",Stack2),answer(Stack2,20-12-2020,20,"RespuestaE2",[Et1,et2,et3],Stack3).
-stack(Stack),answer(Stack2,20-12-2020,1,"RespuestaE3",[Et1,et2,et3],Stack3).
+stack(Stack),answer(Stack,20-12-2020,1,"RespuestaE3",[Et1,et2,et3],Stack3).
 
 
 
@@ -463,12 +464,12 @@ ACCEPT
 -Primera correcta,segunda el usuario no le pertenece,tercero sin login
 stack(Stack),stackLogin(Stack,"user4","pass4",Stack2),accept(Stack2,4,7,Stack3).
 stack(Stack),stacklogin(Stack,"user4","pass4",Stack2),accept(Stack2,5,9,Stack3).
-stack(Stack),accept(Stack2,4,7,Stack3).
+stack(Stack),accept(Stack,4,7,Stack3).
 
 STACKTOSTRING
 --
 stack(Stack),stackLogin(Stack,"user1","pass1",Stack2),stackToString(Stack2,String),write(String).
-stack(Stack),stackToString(Stack2,String),write(String).
+stack(Stack),stackToString(Stack,String),write(String).
 stack(Stack),stackLogin(Stack,"user2","pass2",Stack2),stackToString(Stack2,String),write(String).
 
 VOTE

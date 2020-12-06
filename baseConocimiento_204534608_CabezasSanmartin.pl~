@@ -294,7 +294,7 @@ accept([Usuarios,Preguntas,Respuestas,UsuarioActivo],IDPregunta,IDRespuesta,
     %descrip: ordena los usuarios,preguntas y respuestas en un string
   stackToString([Usuarios,Preguntas,Respuestas,[]],[StringUsuarios,StringPreguntas]):-
     ordenarUsuarios(Usuarios,StringUsuarios),ordenarPreguntas(Preguntas,Respuestas,StringPreguntas).
-  stackToString([_,Preguntas,Respuestas,UsuarioActivo],[StringActivo,StringPreguntas]):-stringU(UsuarioActivo,StringActivo),
+  stackToString([_,Preguntas,Respuestas,UsuarioActivo],[StringActivo,"\n",StringPreguntas]):-stringU(UsuarioActivo,StringActivo),
   ordenarPreguntas(Preguntas,Respuestas,StringPreguntas).
 
     %entrada:Lista usuarios
@@ -434,9 +434,11 @@ reputacion([PrimerUsuario|SigUsuario],Username,resta,Reputacion,[PrimerUsuario|C
 /*
 EJEMPLOS
 REGISTER
+--Tercer error ya que existe
 stack(Stack),stackRegister(Stack,"userNuevo","passNuevo",Stack2).
 stack(Stack),stackRegister(Stack,"user20","1234",Stack2).
 stack(Stack),stackRegister(Stack,"user1","pass1",Stack2).
+
 LOGIN
 -- primera correcta,segunda contraseña incorrecta,tercera usuarionoexiste
 
